@@ -2,6 +2,8 @@ const { ethers } = require("hardhat");
 const { use, expect } = require("chai");
 const { solidity, MockProvider } = require("ethereum-waffle");
 
+const DEFAULT_ADDR = '0x0000000000000000000000000000000000000000';
+
 use(solidity);
 
 describe("My Dapp", function () {
@@ -18,7 +20,7 @@ describe("My Dapp", function () {
 
       accountsContract = await Accounts.deploy();
     });
-    describe("addAccount()", function () {
+    describe("basic accounts", function () {
       it("Should return the default value for an unset address", async function () {
         const [newAddress] = new MockProvider().getWallets()
         const newBalance = 50;
@@ -43,6 +45,41 @@ describe("My Dapp", function () {
         expect(await accountsContract.getAccountBalance(newAddress)).to.equal(newBalance);
         await accountsContract.clearAccountBalance(newAddress);
         expect(await accountsContract.getAccountBalance(newAddress)).to.equal(0);
+      })
+    })
+    describe("wallets", function () {
+      it("Should return default values for a non-existent wallet", async function () {
+        const [newWallet] = new MockProvider().getWallets()
+        const newAddress = newWallet.address;
+        const [addr, walletName, bal] = await accountsContract.getWallet(newAddress);
+        expect(addr).to.equal(DEFAULT_ADDR);
+        expect(walletName).to.equal('');
+        expect(bal).to.equal(0);
+      });
+
+      it("Should allow you to update a wallet", async function () {
+        const [newWallet] = new MockProvider().getWallets()
+        const newAddress = newWallet.address;
+        await accountsContract.setWallet(newAddress, "logan", 45);
+        const [addr, walletName, bal] = await accountsContract.getWallet(newAddress);
+        expect(addr).to.equal(newAddress);
+        expect(walletName).to.equal("logan");
+        expect(bal).to.equal(45);
+      })
+
+      it("Should allow you to delete a wallet", async function () {
+        const [newWallet] = new MockProvider().getWallets()
+        const newAddress = newWallet.address;
+        await accountsContract.setWallet(newAddress, "logan", 45);
+        let [addr, walletName, bal] = await accountsContract.getWallet(newAddress);
+        expect(addr).to.equal(newAddress);
+        expect(walletName).to.equal("logan");
+        expect(bal).to.equal(45);
+        await accountsContract.deleteWallet(newAddress);
+        [addr, walletName, bal] = await accountsContract.getWallet(newAddress);
+        expect(addr).to.equal(DEFAULT_ADDR);
+        expect(walletName).to.equal('');
+        expect(bal).to.equal(0);
       })
     })
   })

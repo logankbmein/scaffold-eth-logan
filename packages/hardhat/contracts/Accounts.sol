@@ -5,7 +5,14 @@ import "hardhat/console.sol";
 
 contract Accounts {
 
-  mapping (address => uint) public accounts;
+  struct Wallet {
+    address addr;
+    string name;
+    uint balance;
+  }
+
+  mapping (address => uint) accounts;
+  mapping (address => Wallet) wallets;
 
   function setAccountBalance(address _addr, uint _bal) public {
     accounts[_addr] = _bal;
@@ -18,6 +25,22 @@ contract Accounts {
 
   function clearAccountBalance(address _addr) public {
     delete accounts[_addr];
+  }
+
+  function getWallet(address _addr) public view returns (address addr, string memory name, uint bal) {
+    Wallet storage wallet = wallets[_addr];
+    return (wallet.addr, wallet.name, wallet.balance);
+  }
+
+  function setWallet(address _addr, string memory _name, uint _balance) public {
+    Wallet storage wallet = wallets[_addr];
+    wallet.addr = _addr;
+    wallet.name = _name;
+    wallet.balance = _balance;
+  }
+
+  function deleteWallet(address _addr) public {
+    delete wallets[_addr];
   }
 
 }
