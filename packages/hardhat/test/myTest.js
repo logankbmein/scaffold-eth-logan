@@ -1,6 +1,6 @@
 const { ethers } = require("hardhat");
 const { use, expect } = require("chai");
-const { solidity } = require("ethereum-waffle");
+const { solidity, MockProvider } = require("ethereum-waffle");
 
 use(solidity);
 
@@ -18,6 +18,33 @@ describe("My Dapp", function () {
 
       accountsContract = await Accounts.deploy();
     });
+    describe("addAccount()", function () {
+      it("Should return the default value for an unset address", async function () {
+        const [newAddress] = new MockProvider().getWallets()
+        const newBalance = 50;
+        expect(await accountsContract.getAccountBalance(newAddress.address)).to.equal(0);
+      })
+
+      it("Should be able to add an account given an address", async function () {
+        const [newWallet] = new MockProvider().getWallets()
+        const newAddress = newWallet.address;
+        const newBalance = 50;
+
+        await accountsContract.setAccountBalance(newAddress, newBalance);
+        expect(await accountsContract.getAccountBalance(newAddress)).to.equal(newBalance);
+      })
+
+      it("Should be able to clear an existing account balance", async function () {
+        const [newWallet] = new MockProvider().getWallets()
+        const newAddress = newWallet.address;
+        const newBalance = 50;
+
+        await accountsContract.setAccountBalance(newAddress, newBalance);
+        expect(await accountsContract.getAccountBalance(newAddress)).to.equal(newBalance);
+        await accountsContract.clearAccountBalance(newAddress);
+        expect(await accountsContract.getAccountBalance(newAddress)).to.equal(0);
+      })
+    })
   })
 
   describe("YourContract", function () {
