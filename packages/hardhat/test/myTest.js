@@ -12,6 +12,14 @@ describe("My Dapp", function () {
     setTimeout(done, 2000);
   });
 
+  describe("Accounts", function () {
+    it("Should deploy Accounts contract", async function () {
+      const Accounts = await ethers.getContractFactory("Accounts");
+
+      accountsContract = await Accounts.deploy();
+    });
+  })
+
   describe("YourContract", function () {
     it("Should deploy YourContract", async function () {
       const YourContract = await ethers.getContractFactory("YourContract");
