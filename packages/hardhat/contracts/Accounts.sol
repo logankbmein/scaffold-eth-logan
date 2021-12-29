@@ -32,7 +32,12 @@ contract Accounts {
     return (wallet.addr, wallet.name, wallet.balance);
   }
 
-  function setWallet(address _addr, string memory _name, uint _balance) public {
+  modifier validateAddress(address _addr) { 
+    require(_addr != address(0), "Not a valid address!");
+    _;
+  }
+
+  function setWallet(address _addr, string memory _name, uint _balance) public validateAddress(_addr) {
     Wallet storage wallet = wallets[_addr];
     wallet.addr = _addr;
     wallet.name = _name;

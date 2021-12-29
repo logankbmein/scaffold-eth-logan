@@ -1,9 +1,11 @@
 const { ethers } = require("hardhat");
 const { use, expect } = require("chai");
+const chaiAsPromised = require('chai-as-promised');
 const { solidity, MockProvider } = require("ethereum-waffle");
 
 const DEFAULT_ADDR = '0x0000000000000000000000000000000000000000';
 
+use(chaiAsPromised);
 use(solidity);
 
 describe("My Dapp", function () {
@@ -80,6 +82,11 @@ describe("My Dapp", function () {
         expect(addr).to.equal(DEFAULT_ADDR);
         expect(walletName).to.equal('');
         expect(bal).to.equal(0);
+      })
+      
+      it("Should validate that an address passed in is not the zero address", async function () {
+        const setWalletPromise = accountsContract.setWallet(DEFAULT_ADDR, "logan", 45);
+        await expect(setWalletPromise).to.be.rejectedWith(Error, "Not a valid address!");
       })
     })
   })
